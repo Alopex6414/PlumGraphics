@@ -360,7 +360,7 @@ void CPlumGraphics::PlumGraphicsDrawRectangle(int nX, int nY, int nWidth, int nH
 }
 
 //--------------------------------------------------------------------------------------
-// @Function:	 PlumGraphicsDrawRectangle(int nX, int nY, int nWidth, int nHeight)
+// @Function:	 PlumGraphicsDrawRectangle(RECT sRect)
 // @Purpose: PlumGraphics绘制矩形
 // @Since: v1.00a
 // @Para: int nX				//绘制矩形X坐标
@@ -479,5 +479,204 @@ void CPlumGraphics::PlumGraphicsDrawRectangle(RECT sRect, PlumPenType ePenType, 
 
 	DeleteObject(hPen);
 	DeleteObject(hBrush);
+	ReleaseDC(m_hWnd, hDC);
+}
+
+//-------------------------------------------------------------------------------------------
+// @Function:	 PlumGraphicsDrawRectangleOnOriginal(int nX, int nY, int nWidth, int nHeight)
+// @Purpose: PlumGraphics绘制矩形
+// @Since: v1.00a
+// @Para: int nX				//绘制矩形X坐标
+// @Para: int nY				//绘制矩形Y坐标
+// @Para: int nWidth			//绘制矩形宽度
+// @Para: int nHeight			//绘制矩形高度
+// @Return: None
+//-------------------------------------------------------------------------------------------
+void CPlumGraphics::PlumGraphicsDrawRectangleOnOriginal(int nX, int nY, int nWidth, int nHeight)
+{
+	HDC hDC;
+	HDC hMemDC;
+	HBITMAP hBitmap;
+	HPEN hPen;
+
+	hDC = GetDC(m_hWnd);
+	hMemDC = CreateCompatibleDC(hDC);
+	hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
+	hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+
+	SelectObject(hMemDC, hBitmap);
+	SelectObject(hMemDC, hPen);
+	Rectangle(hMemDC, nX, nY, (nX + nWidth), (nY + nHeight));
+
+	BitBlt(hDC, m_sRect.left, m_sRect.top, nWidth, nHeight, hMemDC, 0, 0, SRCCOPY);
+
+	DeleteObject(hPen);
+	DeleteObject(hBitmap);
+	DeleteDC(hMemDC);
+	ReleaseDC(m_hWnd, hDC);
+}
+
+//--------------------------------------------------------------------------------------
+// @Function:	 PlumGraphicsDrawRectangle(RECT sRect)
+// @Purpose: PlumGraphics绘制矩形
+// @Since: v1.00a
+// @Para: int nX				//绘制矩形X坐标
+// @Para: int nY				//绘制矩形Y坐标
+// @Para: int nWidth			//绘制矩形宽度
+// @Para: int nHeight			//绘制矩形高度
+// @Return: None
+//--------------------------------------------------------------------------------------
+void CPlumGraphics::PlumGraphicsDrawRectangleOnOriginal(RECT sRect)
+{
+	HDC hDC;
+	HDC hMemDC;
+	HBITMAP hBitmap;
+	HPEN hPen;
+	int nWidth;
+	int nHeight;
+
+	nWidth = sRect.right - sRect.left;
+	nHeight = sRect.bottom - sRect.top;
+
+	hDC = GetDC(m_hWnd);
+	hMemDC = CreateCompatibleDC(hDC);
+	hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
+	hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+
+	SelectObject(hMemDC, hBitmap);
+	SelectObject(hMemDC, hPen);
+	Rectangle(hMemDC, sRect.left, sRect.top, sRect.right, sRect.bottom);
+
+	BitBlt(hDC, m_sRect.left, m_sRect.top, nWidth, nHeight, hMemDC, 0, 0, SRCCOPY);
+
+	DeleteObject(hPen);
+	DeleteObject(hBitmap);
+	DeleteDC(hMemDC);
+	ReleaseDC(m_hWnd, hDC);
+}
+
+//--------------------------------------------------------------------------------------------------------
+// @Function:	 PlumGraphicsDrawRectangle(RECT sRect, PlumPenType ePenType, int nWidth, COLORREF crColor)
+// @Purpose: PlumGraphics绘制矩形
+// @Since: v1.00a
+// @Para: RECT sRect			//绘制矩形区域
+// @Para: PlumPenType ePenType	//绘制画笔枚举
+// @Para: int nWidth			//绘制画笔宽度
+// @Para: COLORREF crColor		//绘制画笔颜色
+// @Return: None
+//--------------------------------------------------------------------------------------------------------
+void CPlumGraphics::PlumGraphicsDrawRectangleOnOriginal(RECT sRect, PlumPenType ePenType, int nPenWidth, COLORREF crPenColor)
+{
+	HDC hDC;
+	HDC hMemDC;
+	HBITMAP hBitmap;
+	HPEN hPen;
+	int nWidth;
+	int nHeight;
+
+	nWidth = sRect.right - sRect.left;
+	nHeight = sRect.bottom - sRect.top;
+
+	hDC = GetDC(m_hWnd);
+	hMemDC = CreateCompatibleDC(hDC);
+	hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
+	
+	switch (ePenType)
+	{
+	case PlumPen_Solid:
+		hPen = CreatePen(PS_SOLID, nPenWidth, crPenColor);
+		break;
+	case PlumPen_Dash:
+		hPen = CreatePen(PS_DASH, 1, crPenColor);
+		break;
+	case PlumPen_Dot:
+		hPen = CreatePen(PS_DOT, 1, crPenColor);
+		break;
+	case PlumPen_DashDot:
+		hPen = CreatePen(PS_DASHDOT, 1, crPenColor);
+		break;
+	case PlumPen_DashDotDot:
+		hPen = CreatePen(PS_DASHDOTDOT, 1, crPenColor);
+		break;
+	default:
+		return;
+		break;
+	}
+
+	SelectObject(hMemDC, hBitmap);
+	SelectObject(hMemDC, hPen);
+	Rectangle(hMemDC, sRect.left, sRect.top, sRect.right, sRect.bottom);
+
+	BitBlt(hDC, m_sRect.left, m_sRect.top, nWidth, nHeight, hMemDC, 0, 0, SRCCOPY);
+
+	DeleteObject(hPen);
+	DeleteObject(hBitmap);
+	DeleteDC(hMemDC);
+	ReleaseDC(m_hWnd, hDC);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// @Function:	 PlumGraphicsDrawRectangle(RECT sRect, PlumPenType ePenType, int nWidth, COLORREF crColorPen, COLORREF crColorBrush)
+// @Purpose: PlumGraphics绘制矩形
+// @Since: v1.00a
+// @Para: RECT sRect			//绘制矩形区域
+// @Para: PlumPenType ePenType	//绘制画笔枚举
+// @Para: int nWidth			//绘制画笔宽度
+// @Para: COLORREF crColorPen	//绘制画笔颜色
+// @Para: COLORREF crColorBrush	//绘制画刷颜色
+// @Return: None
+//----------------------------------------------------------------------------------------------------------------------------------
+void CPlumGraphics::PlumGraphicsDrawRectangleOnOriginal(RECT sRect, PlumPenType ePenType, int nPenWidth, COLORREF crPenColor, COLORREF crBrushColor)
+{
+	HDC hDC;
+	HDC hMemDC;
+	HBITMAP hBitmap;
+	HPEN hPen;
+	HBRUSH hBrush;
+	int nWidth;
+	int nHeight;
+
+	nWidth = sRect.right - sRect.left;
+	nHeight = sRect.bottom - sRect.top;
+
+	hDC = GetDC(m_hWnd);
+	hMemDC = CreateCompatibleDC(hDC);
+	hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
+
+	switch (ePenType)
+	{
+	case PlumPen_Solid:
+		hPen = CreatePen(PS_SOLID, nPenWidth, crPenColor);
+		break;
+	case PlumPen_Dash:
+		hPen = CreatePen(PS_DASH, 1, crPenColor);
+		break;
+	case PlumPen_Dot:
+		hPen = CreatePen(PS_DOT, 1, crPenColor);
+		break;
+	case PlumPen_DashDot:
+		hPen = CreatePen(PS_DASHDOT, 1, crPenColor);
+		break;
+	case PlumPen_DashDotDot:
+		hPen = CreatePen(PS_DASHDOTDOT, 1, crPenColor);
+		break;
+	default:
+		return;
+		break;
+	}
+
+	hBrush = CreateSolidBrush(crBrushColor);
+
+	SelectObject(hMemDC, hBitmap);
+	SelectObject(hMemDC, hBrush);
+	SelectObject(hMemDC, hPen);
+	Rectangle(hMemDC, sRect.left, sRect.top, sRect.right, sRect.bottom);
+
+	BitBlt(hDC, m_sRect.left, m_sRect.top, nWidth, nHeight, hMemDC, 0, 0, SRCCOPY);
+
+	DeleteObject(hPen);
+	DeleteObject(hBrush);
+	DeleteObject(hBitmap);
+	DeleteDC(hMemDC);
 	ReleaseDC(m_hWnd, hDC);
 }
