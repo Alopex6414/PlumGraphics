@@ -80,6 +80,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="PlumCommon.h" />
     <ClInclude Include="PlumGraphics.h" />
   </ItemGroup>
   <ItemGroup>
